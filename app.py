@@ -15,62 +15,61 @@ def authenticate(username, password):
             return True
     return False
 
-# Main app
+# Login Page
+def login_page():
+    st.header("Login Page")
+    with st.form("Login Form", clear_on_submit=True):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+
+        # Login button
+        submit_button = st.form_submit_button("Login")
+
+        if submit_button:
+            if authenticate(username, password):
+                st.success(f"Welcome '{username}', You are successfully logged in!")
+                st.session_state['authenticated'] = True
+            else:
+                st.error("The username or password you have entered is incorrect.")
+
+# Main Page
+def main_page():
+
+    st.sidebar.write(f"User: \'{st.session_state['username']}\'")
+    if st.sidebar.button("Logout"):
+        st.session_state['authenticated'] = False
+        st.experimental_rerun()
+
+    
+
+    global query
+    query = st.text_area("Enter query here.. 👇🏻", key='question')
+
+    submit = st.button("Get Answer")
+
+    if submit:
+        if query:
+            # get similar docs
+            with st.spinner("Generating Response"):
+                response = generate_response_rag(query)
+                st.write(response)
+            st.success("How was that?")
+        else:
+            st.error("Provide the document first")
+
 def main():
+
+    st.title("BimaMitra Chatbot")
+
     # Use session state to keep track of authentication status
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
-        st.session_state['username']=False
+        st.session_state['username'] = None
 
-    # Sidebar for login/logout
-    with st.sidebar:
-        if not st.session_state['authenticated']:
-            st.title("Login Page")
-
-            with st.form("Login Form", clear_on_submit=True):
-                username = st.text_input("Username")
-                password = st.text_input("Password", type="password")
-                
-                # Login button
-                submit_button = st.form_submit_button("Login")
-
-                if submit_button:
-                    st.session_state['authenticated'] = authenticate(username, password)
-                    if st.session_state['authenticated']:
-                        st.success(f"Welcome \'{username}\', You are successfully logged in!")
-                    else:
-                        st.error("The username or password you have entered is incorrect.")
-
-        if st.session_state['authenticated']:
-            st.write(f"User: {st.session_state['username']}")
-            if st.button("Logout"):
-                st.session_state['authenticated'] = False
-                st.experimental_rerun()
-
-    # Content to show after login
-    if st.session_state['authenticated']:
-        # st.title("Welcome to the app!")
-        st.title("BimaMitra Chatbot")    
-
-        global query
-        query = st.text_area("Enter query here.. 👇🏻", key='question')
-
-        submit = st.button("Get Answer")
-
-        if submit:
-            if query:
-                
-                # get similar docs
-                with st.spinner("Generating Response"):
-                    response = generate_response_rag(query)
-                    st.write(response)
-                st.success("How was that?")
-                
-            
-            else:
-                st.error("You gotta be kidding me.. I really wish I could read your mind")
-        elif submit:
-            st.error("Provide the document first")
+    if not st.session_state['authenticated']:
+        login_page()
+    else:
+        main_page()
 
 if __name__ == "__main__":
     main()
