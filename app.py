@@ -28,6 +28,7 @@ def login_page():
         if submit_button:
             if authenticate(username, password):
                 st.success(f"Welcome '{username}', You are successfully logged in!")
+                st.success("Tap \'Login\' to continue")
                 st.session_state['authenticated'] = True
             else:
                 st.error("The username or password you have entered is incorrect.")
