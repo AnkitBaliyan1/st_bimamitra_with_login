@@ -53,7 +53,7 @@ def main_page():
             with st.spinner("Generating Response"):
                 response = generate_response_rag(query)
                 st.write(response)
-            st.success("How was that?")
+            # st.success("How was that?")
         else:
             st.error("Provide the document first")
 
